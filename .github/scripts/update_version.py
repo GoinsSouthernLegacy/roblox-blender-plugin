@@ -44,18 +44,18 @@ from pathlib import Path
 def update_version(new_version: str, file_path: str) -> None:
     """
     Update the version string in a Python file.
-    
+
     Replaces the version tuple in the target file with the new version
     extracted from the provided version tag.
-    
+
     Args:
         new_version: Version tag in format 'vX.X.X' (e.g., 'v1.2.3')
         file_path: Path to the file to update (absolute or relative path)
-        
+
     Raises:
         ValueError: If version format is invalid or pattern not found
         FileNotFoundError: If the target file doesn't exist
-        
+
     Example:
         >>> update_version('v1.2.3', 'src/__init__.py')
         # Successfully updates version to (1, 2, 3)
@@ -66,7 +66,7 @@ def update_version(new_version: str, file_path: str) -> None:
         raise ValueError(
             f"✗ Invalid version format: {new_version}. Expected 'vX.X.X' (e.g., v1.2.3)"
         )
-    
+
     # ✓ Convert version tag to tuple format
     # Example: v1.2.3 -> "version": (1, 2, 3),
     new_version_line = re.sub(
@@ -74,12 +74,12 @@ def update_version(new_version: str, file_path: str) -> None:
         r'"version": (\1, \2, \3),',
         new_version
     )
-    
+
     # ✓ Define the pattern to find and replace
     version_line_pattern = (
         r'"version": \(\d+, \d+, \d+\),  # Gets updated by Github Actions. See README for info'
     )
-    
+
     # ✓ Read file with error handling
     try:
         file_content = Path(file_path).read_text(encoding="utf-8")
@@ -92,10 +92,10 @@ def update_version(new_version: str, file_path: str) -> None:
         raise RuntimeError(
             f"✗ Error reading file {file_path}: {str(e)}"
         )
-    
+
     # ✓ Update version in content
     updated_content = re.sub(version_line_pattern, new_version_line, file_content, count=1)
-    
+
     # ✓ Check if replacement was actually made
     if updated_content == file_content:
         raise ValueError(
@@ -103,7 +103,7 @@ def update_version(new_version: str, file_path: str) -> None:
             f"  Expected pattern: 'version': (X, X, X),  # Gets updated by Github Actions. See README for info\n"
             f"  See UPDATE_VERSION_README.md for more information."
         )
-    
+
     # ✓ Write updated file with error handling
     try:
         Path(file_path).write_text(updated_content, encoding="utf-8")
@@ -116,7 +116,7 @@ def update_version(new_version: str, file_path: str) -> None:
 def main() -> int:
     """
     Main entry point for the script.
-    
+
     Returns:
         0 on success, 1 on error
     """
@@ -139,17 +139,17 @@ def main() -> int:
         print("For detailed help, see: UPDATE_VERSION_README.md")
         print()
         return 1
-    
+
     try:
         new_version = sys.argv[1]
         file_path = sys.argv[2]
-        
+
         update_version(new_version, file_path)
-        
+
         # ✓ Success message
         print(f"✓ Successfully updated version to {new_version}")
         return 0
-        
+
     except (ValueError, FileNotFoundError, RuntimeError) as e:
         print(str(e), file=sys.stderr)
         return 1
